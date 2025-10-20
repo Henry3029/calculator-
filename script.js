@@ -17,30 +17,23 @@ function divide(a, b) {
   return a / b; 
 }
 
-let firstNumber = null; 
-let secondNumber = null; 
+let firstNumber = "";
+let secondNumber = "";
 let currentOperator = null; 
+let resultdisplayed = false;
 
 function operate(operator, a, b)  {
   a = Number(a);
   b = Number(b);
   
   switch (operator) {
-    case '+':
-      return add(a, b);
-    case '-':
-      return subtract(a, b);
-    case '*':
-      return multiply(a, b);
-    case '/':
-      return divide(a, b);
-    default:
-      return null; 
+    case '+': return add(a, b);
+    case '-': return subtract(a, b);
+    case '*': return multiply(a, b);
+    case '/': return divide(a, b);
+    default: return null; 
   }
 }
-
-console.log(operate('+', 3, 5)); // 8
-console.log(operate('*', 4, 2)); // 8
 
 const display = document.getElementById("display");
 const buttons = document.querySelectorAll("button");
@@ -50,9 +43,60 @@ buttons.forEach(button => {
   button.addEventListener("click", () => {
     const value = button.textContent;
 
+    // Numbers and decimals
     if ((value >= '0' && value <= '9') || value === '.') {
-      displayValue += value;
-      display.textContent = displayValue; 
+      if (resultdisplayed) {
+        displayValue = "";
+        resultdisplayed = false;
+      }
+      displayValue += value; 
+      display.textContent = displayValue;
+      return;
+    }
+
+    // Operators
+    if (['+', '-', '*', '/'].includes(value)) {
+      if (firstNumber && currentOperator && displayValue) {
+        secondNumber = displayValue; 
+        const result = operate(currentOperator, firstNumber, secondNumber);
+        display.textContent = roundResult(result);
+        firstNumber = result;
+      } else {
+        firstNumber = displayValue;
+      }
+      currentOperator = value; 
+      displayValue = "";
+      return;
+    }
+
+    // Equals
+    if (value === '=') {
+      if (firstNumber && currentOperator && displayValue) {
+        secondNumber = displayValue; 
+        const result = operate(currentOperator, firstNumber, secondNumber);
+        display.textContent = roundResult(result);
+        firstNumber = result;
+        displayValue = "";
+        currentOperator = null; 
+        resultdisplayed = true;
+      }
+      return;
+    }
+
+    // Clear
+    if (value.toLowerCase() === 'clear') {
+      firstNumber = "";
+      secondNumber = "";
+      currentOperator = null; 
+      displayValue = "";
+      display.textContent = '0';
     }
   });
 });
+
+function roundResult(num) {
+  if (typeof num === "string") {
+    return num; // handle divide by zero message 
+  }
+  return Math.round(num * 1000) / 1000; // round to 3 decimal places 
+}
