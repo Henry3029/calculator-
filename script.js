@@ -42,17 +42,40 @@ let displayValue = "";
 buttons.forEach(button => {
   button.addEventListener("click", () => {
     const value = button.textContent;
+    
+    if (button.classList.contains("backspace")) {
+  if (displayValue.length > 1) {
+    // remove last character
+    displayValue = displayValue.slice(0, -1);
+  } else {
+    // reset to "0" if everything deleted
+    displayValue = "0";
+  }
+
+  display.textContent = displayValue;
+  return;
+}
 
     // Numbers and decimals
     if ((value >= '0' && value <= '9') || value === '.') {
-      if (resultdisplayed) {
-        displayValue = "";
-        resultdisplayed = false;
-      }
-      displayValue += value; 
-      display.textContent = displayValue;
-      return;
-    }
+  // prevent multiple decimals
+  if (value === '.' && displayValue.includes('.')) return;
+
+  if (resultdisplayed) {
+    displayValue = "";
+    resultdisplayed = false;
+  }
+
+  // Replace "0" instead of appending to it
+  if (displayValue === "0" && value !== ".") {
+    displayValue = value;
+  } else {
+    displayValue += value;
+  }
+
+  display.textContent = displayValue;
+  return;
+}
 
     // Operators
     if (['+', '-', '*', '/'].includes(value)) {
