@@ -1,125 +1,155 @@
-function add(a, b) {
-  return a + b;
-}
+function add(a, b) {  
+  return a + b;  
+}  
 
-function subtract(a, b) {
-  return a - b;     
-}
+function subtract(a, b) {  
+  return a - b;       
+}  
 
-function multiply(a, b) {
-  return a * b; 
-}
+function multiply(a, b) {  
+  return a * b;   
+}  
 
-function divide(a, b) {
-  if (b === 0) {
-    return "Error: cannot divide by zero";
-  }
-  return a / b; 
-}
+function divide(a, b) {  
+  if (b === 0) {  
+    return "Error: cannot divide by zero";  
+  }  
+  return a / b;   
+}  
 
-let firstNumber = "";
-let secondNumber = "";
-let currentOperator = null; 
-let resultdisplayed = false;
+let firstNumber = "";  
+let secondNumber = "";  
+let currentOperator = null;   
+let resultDisplayed = false;  
 
-function operate(operator, a, b)  {
-  a = Number(a);
-  b = Number(b);
-  
-  switch (operator) {
-    case '+': return add(a, b);
-    case '-': return subtract(a, b);
-    case '*': return multiply(a, b);
-    case '/': return divide(a, b);
-    default: return null; 
-  }
-}
-
-const display = document.getElementById("display");
-const buttons = document.querySelectorAll("button");
-let displayValue = "";
-
-buttons.forEach(button => {
-  button.addEventListener("click", () => {
-    const value = button.textContent;
+function operate(operator, a, b)  {  
+  a = Number(a);  
+  b = Number(b);  
     
-    if (button.classList.contains("backspace")) {
-  if (displayValue.length > 1) {
-    // remove last character
-    displayValue = displayValue.slice(0, -1);
-  } else {
-    // reset to "0" if everything deleted
-    displayValue = "0";
-  }
+  switch (operator) {  
+    case '+': return add(a, b);  
+    case '-': return subtract(a, b);  
+    case '*': return multiply(a, b);  
+    case '/': return divide(a, b);  
+    default: return null;   
+  }  
+}  
 
-  display.textContent = displayValue;
-  return;
-}
+const display = document.getElementById("display");  
+const buttons = document.querySelectorAll("button");  
+let displayValue = "0";  
 
-    // Numbers and decimals
-    if ((value >= '0' && value <= '9') || value === '.') {
-  // prevent multiple decimals
-  if (value === '.' && displayValue.includes('.')) return;
+buttons.forEach(button => {  
+  button.addEventListener("click", () => handleInput(button));  
+});  
 
-  if (resultdisplayed) {
-    displayValue = "";
-    resultdisplayed = false;
-  }
+function handleInput(button) {  
+  const value = button.textContent;  
 
-  // Replace "0" instead of appending to it
-  if (displayValue === "0" && value !== ".") {
-    displayValue = value;
-  } else {
-    displayValue += value;
-  }
+  // ----- Backspace -----
+  if (button.classList.contains("backspace")) {  
+    if (displayValue.length > 1) {  
+      displayValue = displayValue.slice(0, -1);  
+    } else {  
+      displayValue = "0";  
+    }  
+    display.textContent = displayValue;  
+    return;  
+  }  
 
-  display.textContent = displayValue;
-  return;
-}
+  // ----- Numbers & Decimals -----
+  if ((value >= '0' && value <= '9') || value === '.') {  
+    if (value === '.' && displayValue.includes('.')) return;  
 
-    // Operators
-    if (['+', '-', '*', '/'].includes(value)) {
-      if (firstNumber && currentOperator && displayValue) {
-        secondNumber = displayValue; 
-        const result = operate(currentOperator, firstNumber, secondNumber);
-        display.textContent = roundResult(result);
-        firstNumber = result;
-      } else {
-        firstNumber = displayValue;
-      }
-      currentOperator = value; 
-      displayValue = "";
-      return;
-    }
+    if (resultDisplayed) {  
+      displayValue = "";  
+      resultDisplayed = false;  
+    }  
 
-    // Equals
-    if (value === '=') {
-      if (firstNumber && currentOperator && displayValue) {
-        secondNumber = displayValue; 
-        const result = operate(currentOperator, firstNumber, secondNumber);
-        display.textContent = roundResult(result);
-        firstNumber = result;
-        displayValue = "";
-        currentOperator = null; 
-        resultdisplayed = true;
-      }
-      return;
-    }
+    if (displayValue === "0" && value !== ".") {  
+      displayValue = value;  
+    } else {  
+      displayValue += value;  
+    }  
 
-    // Clear
-    if (value.toLowerCase() === 'clear') {
-      firstNumber = "";
-      secondNumber = "";
-      currentOperator = null; 
-      displayValue = "";
-      display.textContent = '0';
-    }
-  });
+    display.textContent = displayValue;  
+    return;  
+  }  
+
+  // ----- Operators -----
+  if (['+', '-', '*', '/'].includes(value)) {  
+    if (firstNumber && currentOperator && displayValue) {  
+      secondNumber = displayValue;   
+      const result = operate(currentOperator, firstNumber, secondNumber);  
+      display.textContent = roundResult(result);  
+      firstNumber = result;  
+    } else {  
+      firstNumber = displayValue;  
+    }  
+    currentOperator = value;   
+    displayValue = "";  
+    return;  
+  }  
+
+  // ----- Equals -----
+  if (value === '=') {  
+    if (firstNumber && currentOperator && displayValue) {  
+      secondNumber = displayValue;   
+      const result = operate(currentOperator, firstNumber, secondNumber);  
+      display.textContent = roundResult(result);  
+      firstNumber = result;  
+      displayValue = "";  
+      currentOperator = null;   
+      resultDisplayed = true;  
+    }  
+    return;  
+  }  
+
+  // ----- Clear -----
+  if (value.toLowerCase() === 'clear') {  
+    firstNumber = "";  
+    secondNumber = "";  
+    currentOperator = null;   
+    displayValue = "0";  
+    display.textContent = '0';  
+  }  
+}  
+
+function roundResult(num) {  
+  if (typeof num === "string") return num;  
+  return Math.round(num * 1000) / 1000;  
+}  
+
+// ----- Keyboard Support -----
+document.addEventListener("keydown", (event) => {  
+  const key = event.key;  
+
+  // Numbers & Decimals  
+  if ((key >= "0" && key <= "9") || key === ".") {  
+    handleInput({ textContent: key });  
+    return;  
+  }  
+
+  // Operators  
+  if (['+', '-', '*', '/'].includes(key)) {  
+    handleInput({ textContent: key });  
+    return;  
+  }  
+
+  // Equals (Enter or =)  
+  if (key === '=' || key === 'Enter') {  
+    handleInput({ textContent: '=' });  
+    return;  
+  }  
+
+  // Clear (Escape or C)  
+  if (key === 'Escape' || key.toLowerCase() === 'c') {  
+    handleInput({ textContent: 'clear' });  
+    return;  
+  }  
+
+  // Backspace  
+  if (key === 'Backspace') {  
+    handleInput({ textContent: '‹', classList: { contains: (cls) => cls === "backspace" } });  
+  }  
 });
-
-function roundResult(num) {
-  if (typeof num === "string") {
-    return num; // handle divide by zero message 
-  }
-  return Math.round(num * 1000) / 1000; // round to 3 decimal places 
-}
